@@ -12,6 +12,7 @@ import "./lib/pushinpay-config";
 import "./lib/pushinpay-debug";
 import "./lib/pushinpay-proxy";
 import "./lib/test-fallback";
+import "./lib/vercel-test";
 
 const queryClient = new QueryClient();
 

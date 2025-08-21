@@ -2,6 +2,8 @@
 // Configuração real com API key fornecida
 // Baseado na documentação oficial da PushinPay
 
+import { VERCEL_CONFIG, isVercelEnvironment, getApiKey, getAuthHeaders } from './vercel-config';
+
 interface PushinPayConfig {
   apiKey: string;
   environment: 'sandbox' | 'production';
@@ -50,23 +52,48 @@ export class PushinPayIntegration {
       ? 'https://api.pushinpay.com' 
       : 'https://sandbox.pushinpay.com';
     
-    // Detectar se está em desenvolvimento
+    // Detectar se está em desenvolvimento ou Vercel
     this.isDevelopment = typeof window !== 'undefined' && 
       (window.location.hostname === 'localhost' || 
        window.location.hostname === '127.0.0.1' ||
-       window.location.hostname.includes('localhost'));
+       window.location.hostname.includes('localhost') ||
+       window.location.hostname.includes('vercel.app'));
   }
 
   /**
    * Gera um PIX para doação
    */
   async generatePix(request: PixRequest): Promise<PixResponse> {
-    // Em desenvolvimento, usar sempre fallback local devido a CORS
+    // Verificar se está na Vercel ou desenvolvimento
+    if (isVercelEnvironment()) {
+      console.log('🚀 Vercel detectado - tentando API PushinPay primeiro');
+      
+      try {
+        // Tentar API PushinPay na Vercel
+        const result = await this.tryPushinPayAPI(request);
+        if (result.success) {
+          console.log('✅ API PushinPay funcionou na Vercel');
+          return result;
+        }
+      } catch (error) {
+        console.warn('⚠️ API PushinPay falhou na Vercel, usando fallback:', error);
+      }
+    }
+    
+    // Em desenvolvimento local, usar sempre fallback
     if (this.isDevelopment) {
-      console.log('🔧 Desenvolvimento detectado - usando fallback local');
+      console.log('🔧 Desenvolvimento local detectado - usando fallback local');
       return this.generateLocalPix(request);
     }
 
+    // Tentar API PushinPay (método separado para Vercel)
+    return this.tryPushinPayAPI(request);
+  }
+
+  /**
+   * Método específico para tentar API PushinPay (usado na Vercel)
+   */
+  private async tryPushinPayAPI(request: PixRequest): Promise<PixResponse> {
     try {
       // Payload correto baseado na documentação oficial PushinPay
       const payload = {
@@ -82,28 +109,25 @@ export class PushinPayIntegration {
         currency: 'BRL'
       };
 
-      // Configuração para contornar CORS
+      // Usar configuração da Vercel
       const fetchOptions: RequestInit = {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${this.config.apiKey}`,
-          'X-API-Version': '2024-01-01',
-        },
+        headers: getAuthHeaders(),
         body: JSON.stringify(payload),
-        mode: 'cors', // Tentar CORS primeiro
-        credentials: 'omit' // Não enviar cookies
+        mode: VERCEL_CONFIG.CORS_MODE,
+        credentials: VERCEL_CONFIG.CREDENTIALS
       };
 
-      let response: Response;
-      
-      try {
-        // Primeira tentativa com CORS
-        response = await fetch(`${this.baseUrl}/v1/pix/create`, fetchOptions);
-      } catch (corsError) {
-        console.warn('Erro de CORS detectado, usando fallback local...', corsError);
-        return this.generateLocalPix(request);
-      }
+      // Timeout para requisição
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), VERCEL_CONFIG.REQUEST_TIMEOUT);
+
+      const response = await fetch(`${this.baseUrl}/v1/pix/create`, {
+        ...fetchOptions,
+        signal: controller.signal
+      });
+
+      clearTimeout(timeoutId);
 
       if (!response.ok) {
         const errorData: PushinPayError = await response.json().catch(() => ({
@@ -127,9 +151,9 @@ export class PushinPayIntegration {
         copyPasteCode: data.copy_paste_code || data.pix_copy_paste
       };
     } catch (error) {
-      console.error('Erro ao gerar PIX:', error);
+      console.error('Erro ao gerar PIX via API:', error);
       
-      // Se falhar completamente, usar fallback local
+      // Se falhar, usar fallback local
       console.warn('Usando fallback local devido a erro na API');
       return this.generateLocalPix(request);
     }
