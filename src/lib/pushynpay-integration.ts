@@ -55,22 +55,38 @@ export class PushinPayIntegration {
 
       console.log('📤 Payload enviado:', JSON.stringify(payload, null, 2));
 
-      const response = await fetch(`${this.BASE_URL}/v1/pix/create`, {
+      // Configurações de fetch com CORS
+      const fetchOptions: RequestInit = {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${this.API_KEY}`,
           'X-API-Version': '2024-01-01',
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
         },
-        body: JSON.stringify(payload)
+        body: JSON.stringify(payload),
+        mode: 'cors' as RequestMode,
+        credentials: 'omit' as RequestCredentials,
+        cache: 'no-cache' as RequestCache
+      };
+
+      console.log('🌐 Configurações de fetch:', {
+        url: `${this.BASE_URL}/v1/pix/create`,
+        method: fetchOptions.method,
+        headers: fetchOptions.headers,
+        mode: fetchOptions.mode,
+        credentials: fetchOptions.credentials
       });
 
+      const response = await fetch(`${this.BASE_URL}/v1/pix/create`, fetchOptions);
+
       console.log(`📡 Status: ${response.status} ${response.statusText}`);
+      console.log(`📡 Headers:`, Object.fromEntries(response.headers.entries()));
 
       if (!response.ok) {
         const errorData: PushinPayError = await response.json().catch(() => ({
           error: 'unknown',
-          message: `Erro HTTP: ${response.status}`
+          message: `Erro HTTP: ${response.status} - ${response.statusText}`
         }));
         
         console.error('❌ Erro da API:', errorData);
@@ -94,6 +110,15 @@ export class PushinPayIntegration {
 
     } catch (error) {
       console.error('❌ Erro ao gerar PIX:', error);
+      
+      // Log detalhado do erro
+      if (error instanceof TypeError && error.message.includes('fetch')) {
+        console.error('🌐 Erro de rede/CORS detectado');
+        console.error('💡 Possíveis causas:');
+        console.error('   - Bloqueio de CORS pelo navegador');
+        console.error('   - API PushinPay não acessível');
+        console.error('   - Problema de conectividade');
+      }
       
       return {
         success: false,
@@ -121,7 +146,9 @@ export class PushinPayIntegration {
           'Authorization': `Bearer ${this.API_KEY}`,
           'X-API-Version': '2024-01-01',
           'Content-Type': 'application/json'
-        }
+        },
+        mode: 'cors',
+        credentials: 'omit'
       });
 
       if (!response.ok) {
@@ -159,7 +186,9 @@ export class PushinPayIntegration {
           'Authorization': `Bearer ${this.API_KEY}`,
           'X-API-Version': '2024-01-01',
           'Content-Type': 'application/json'
-        }
+        },
+        mode: 'cors',
+        credentials: 'omit'
       });
 
       return response.ok;
@@ -168,7 +197,61 @@ export class PushinPayIntegration {
       return false;
     }
   }
+
+  /**
+   * Testa conectividade básica
+   */
+  async testConnectivity(): Promise<boolean> {
+    try {
+      console.log('🔗 Testando conectividade com PushinPay...');
+      
+      const response = await fetch(`${this.BASE_URL}/v1/auth/validate`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${this.API_KEY}`,
+          'X-API-Version': '2024-01-01',
+          'Content-Type': 'application/json'
+        },
+        mode: 'cors',
+        credentials: 'omit'
+      });
+
+      console.log(`📡 Status: ${response.status} ${response.statusText}`);
+      console.log(`📡 OK: ${response.ok}`);
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log('✅ Conectividade OK:', data);
+        return true;
+      } else {
+        console.log('❌ Erro de conectividade:', response.statusText);
+        return false;
+      }
+    } catch (error) {
+      console.error('❌ Erro de rede:', error);
+      return false;
+    }
+  }
 }
 
 // Instância global
 export const pushinPay = new PushinPayIntegration();
+
+// Funções de teste globais
+if (typeof window !== 'undefined') {
+  (window as any).pushinPayTest = {
+    testConnectivity: () => pushinPay.testConnectivity(),
+    validateApiKey: () => pushinPay.validateApiKey(),
+    generateTestPix: () => pushinPay.generatePix({
+      amount: 5.00,
+      description: 'Teste de conectividade',
+      customerName: 'Teste',
+      customerEmail: 'teste@teste.com'
+    })
+  };
+  
+  console.log('🧪 Testes PushinPay disponíveis no console:');
+  console.log('   window.pushinPayTest.testConnectivity() - Testar conectividade');
+  console.log('   window.pushinPayTest.validateApiKey() - Validar API key');
+  console.log('   window.pushinPayTest.generateTestPix() - Gerar PIX de teste');
+}
