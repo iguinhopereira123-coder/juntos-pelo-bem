@@ -43,7 +43,7 @@ export class PushinPayIntegration {
 
   constructor(config?: Partial<PushinPayConfig>) {
     this.config = {
-      apiKey: config?.apiKey || "43537|cPkJOU9EoOPzY5WeNp4ZkWzunlAjcLmDBHTIniEO5901f62f",
+      apiKey: config?.apiKey || "43550|QC51bcICP2BG9ZGBEDWF6cF1IcUnDfN0tMdhFeq82618ef54",
       environment: config?.environment || 'production'
     };
     

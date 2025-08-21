@@ -3,7 +3,7 @@
 
 export const PUSHINPAY_CONFIG = {
   // API Key fornecida
-  API_KEY: "43537|cPkJOU9EoOPzY5WeNp4ZkWzunlAjcLmDBHTIniEO5901f62f",
+  API_KEY: "43550|QC51bcICP2BG9ZGBEDWF6cF1IcUnDfN0tMdhFeq82618ef54",
   
   // URLs da API
   PRODUCTION_URL: "https://api.pushinpay.com",
@@ -22,7 +22,7 @@ export const PUSHINPAY_CONFIG = {
   // Headers padrão
   HEADERS: {
     'Content-Type': 'application/json',
-    'Authorization': `Bearer 43537|cPkJOU9EoOPzY5WeNp4ZkWzunlAjcLmDBHTIniEO5901f62f`,
+            'Authorization': `Bearer 43550|QC51bcICP2BG9ZGBEDWF6cF1IcUnDfN0tMdhFeq82618ef54`,
     'X-API-Version': '2024-01-01'
   },
   

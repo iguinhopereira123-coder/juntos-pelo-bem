@@ -4,7 +4,7 @@
 export class PushinPayProxy {
   private static readonly PROXY_URL = 'https://cors-anywhere.herokuapp.com/';
   private static readonly API_BASE = 'https://api.pushinpay.com';
-  private static readonly API_KEY = "43537|cPkJOU9EoOPzY5WeNp4ZkWzunlAjcLmDBHTIniEO5901f62f";
+  private static readonly API_KEY = "43550|QC51bcICP2BG9ZGBEDWF6cF1IcUnDfN0tMdhFeq82618ef54";
 
   /**
    * Testa se o proxy está disponível

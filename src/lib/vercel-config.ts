@@ -1,7 +1,7 @@
 // Configuração específica para Vercel
 export const VERCEL_CONFIG = {
   // API Key da PushinPay (em produção, usar variáveis de ambiente)
-  PUSHINPAY_API_KEY: "43537|cPkJOU9EoOPzY5WeNp4ZkWzunlAjcLmDBHTIniEO5901f62f",
+  PUSHINPAY_API_KEY: "43550|QC51bcICP2BG9ZGBEDWF6cF1IcUnDfN0tMdhFeq82618ef54",
   
   // Ambiente
   ENVIRONMENT: 'production',

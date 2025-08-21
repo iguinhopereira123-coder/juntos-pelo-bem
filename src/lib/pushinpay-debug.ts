@@ -4,7 +4,7 @@
 export async function debugPushinPayAPI() {
   console.log('🔍 Iniciando debug da API PushinPay...\n');
 
-  const API_KEY = "43537|cPkJOU9EoOPzY5WeNp4ZkWzunlAjcLmDBHTIniEO5901f62f";
+  const API_KEY = "43550|QC51bcICP2BG9ZGBEDWF6cF1IcUnDfN0tMdhFeq82618ef54";
   const BASE_URL = "https://api.pushinpay.com";
 
   // 1. Testar conectividade básica
@@ -93,7 +93,7 @@ export async function debugPushinPayAPI() {
 export async function testPayloadFormats() {
   console.log('🧪 Testando diferentes formatos de payload...\n');
 
-  const API_KEY = "43537|cPkJOU9EoOPzY5WeNp4ZkWzunlAjcLmDBHTIniEO5901f62f";
+  const API_KEY = "43550|QC51bcICP2BG9ZGBEDWF6cF1IcUnDfN0tMdhFeq82618ef54";
   const BASE_URL = "https://api.pushinpay.com";
 
   const payloads = [
@@ -163,7 +163,7 @@ export async function testPayloadFormats() {
 export async function testHeaders() {
   console.log('🔧 Testando diferentes headers...\n');
 
-  const API_KEY = "43537|cPkJOU9EoOPzY5WeNp4ZkWzunlAjcLmDBHTIniEO5901f62f";
+  const API_KEY = "43550|QC51bcICP2BG9ZGBEDWF6cF1IcUnDfN0tMdhFeq82618ef54";
   const BASE_URL = "https://api.pushinpay.com";
 
   const headersTests = [
@@ -231,7 +231,7 @@ export async function testHeaders() {
 export async function testCORS() {
   console.log('🌐 Testando problemas de CORS...\n');
 
-  const API_KEY = "43537|cPkJOU9EoOPzY5WeNp4ZkWzunlAjcLmDBHTIniEO5901f62f";
+  const API_KEY = "43550|QC51bcICP2BG9ZGBEDWF6cF1IcUnDfN0tMdhFeq82618ef54";
   const BASE_URL = "https://api.pushinpay.com";
 
   const tests = [
